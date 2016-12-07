@@ -45,9 +45,8 @@ var User = (function () {
         ,function () {
             var result = 0;
             var heros = this.getheroInTeam();
-            for (var i = 0; i < heros.length; i++) {
-                result += heros[i].FightPower;
-            }
+            this.heros.forEach(function (e) { return result += e.FightPower; });
+            result = parseInt("result/150");
             return result;
         }
     );
@@ -175,56 +174,54 @@ var Hero = (function () {
     };
     d(p, "basicattack"
         ,function () {
-            return this.level * 10 * this.basicAttFactor;
+            return this.level * 3 * this.basicAttFactor;
         }
     );
     d(p, "maxhp"
         ,function () {
-            return this.level * 10 * this.endurance;
+            return this.level * 2 * this.endurance;
         }
     );
     d(p, "maxmp"
         ,function () {
-            return this.level * 10 * this.intelligence;
+            return this.level * this.intelligence;
         }
     );
     d(p, "defence"
         ,function () {
-            return this.level * this.endurance;
+            return this.level * this.endurance * 3;
         }
     );
     d(p, "strength"
         ,function () {
-            return this.level * 10 * this.strFactor;
+            return this.level * this.strFactor * 2;
         }
     );
     d(p, "intelligence"
         ,function () {
-            return this.level * 10 * this.intFactor;
+            return this.level * this.intFactor * 2;
         }
     );
     d(p, "agility"
         ,function () {
-            return this.level * 10 * this.agiFactor;
+            return this.level * this.agiFactor * 2;
         }
     );
     d(p, "endurance"
         ,function () {
-            return this.level * 10 * this.endFactor;
+            return this.level * this.endFactor * 5;
         }
     );
     d(p, "attack"
         ,function () {
-            return this.basicattack + this.strength * 1 + this.agility * 0.8 + this.intelligence * 0.6;
+            return this.basicattack + this.strength;
         }
     );
     d(p, "FightPower"
         ,function () {
             var result = 0;
-            for (var i = 0; i < this.equipments.length; i++) {
-                result += this.equipments[i].FightPower;
-            }
-            result += this.attack + this.defence * 0.5 + this.maxhp * 0.6 + this.maxmp * 0.4;
+            this.equipments.forEach(function (e) { return result += e.FightPower; });
+            result += this.attack * 1.5 + this.defence + (this.maxhp + this.maxmp * 0.5) * 0.5;
             return result;
         }
     );

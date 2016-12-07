@@ -1,7 +1,7 @@
 // TypeScript file
 class Jewel {
 
-	enhance:number = 1;
+	quality:number = 1;
 
 	basicattack:number = 0;
 
@@ -16,27 +16,17 @@ class Jewel {
 	public constructor(type:number) {
 
 		this.basicattack = jewelConfig[type].basicattack;
-		this.enhance = jewelConfig[type].enhance;
-
 		this.strength = jewelConfig[type].strength
 		this.agility = jewelConfig[type].agility;
 		this.intelligence = jewelConfig[type].intelligence;
-		this.endurance = jewelConfig[type].endurance;
+		this.quality = jewelConfig[type].quality;
 
 	}
-
-	setEnhance(enhance:number) {
-
-		this.enhance = enhance;
-		this.dirtyFlag = true;
-
-	}
-
 
 	@this.attackCache
 	get attack():number {
 
-		return (this.basicattack + this.strength * 1 + this.agility * 0.8 + this.intelligence * 0.6) * this.enhance;
+		return (this.basicattack+this.agility+this.strength+this.intelligence)* this.quality;
 	}
 
 	@this.fightpowerCache
@@ -44,7 +34,7 @@ class Jewel {
 
 		var result = 0;
 
-		result =  this.attack + this.endurance * 0.4 * this.enhance;
+		result =  this.attack + this.endurance * 0.4 * this.quality;
 
 		return result;
 
@@ -83,9 +73,11 @@ class Jewel {
 
 class Weapen implements Equipment{
 
-	enhance:number = 1;
+	quality:number = 1;
 
 	basicattack:number = 0;
+
+	weight:number=1;
 
 	strength:number = 0;
 	agility:number = 0;
@@ -99,19 +91,19 @@ class Weapen implements Equipment{
 	public constructor(type:number) {
 
 		this.basicattack = weapenConfig[type].basicattack;
-		this.enhance = weapenConfig[type].enhance;
-
+		this.quality = weapenConfig[type].quality;
 		this.strength = weapenConfig[type].strength
 		this.agility = weapenConfig[type].agility;
 		this.intelligence = weapenConfig[type].intelligence;
 		this.endurance = weapenConfig[type].endurance;
+		this.weight=weapenConfig[type].weight;
 
 	}
 
 	@this.attackCache
 	get attack():number {
 
-		return (this.basicattack + this.strength * 1 + this.agility * 0.8 + this.intelligence * 0.6) * this.enhance;
+		return (this.basicattack + this.strength * 0.8 + this.agility * 0.8 + this.intelligence * 0.8) * (this.quality*this.weight);
 
 	}
 
@@ -120,13 +112,81 @@ class Weapen implements Equipment{
 
 		var result = 0;
 
-		for(var i = 0; i < this.jewels.length; i++) {
+		this.jewels.forEach(e => result += e.FightPower)
 
-			result += this.jewels[i].FightPower;
+		result += this.attack + this.endurance * 0.4 * this.quality;
 
+		return result;
+
+	}
+
+
+	attackCache:MethodDecorator = (target:any, propertyName, desc: PropertyDescriptor) => {
+
+		if(!this.dirtyFlag){
+			const getter = desc.get;
+			desc.get = function () {
+				return getter.apply(this);
+			}
+
+			return desc;
 		}
 
-		result += this.attack + this.endurance * 0.4 * this.enhance;
+	}
+
+    fightpowerCache:MethodDecorator = (target:any, propertyName, desc: PropertyDescriptor) => {
+
+		if(!this.dirtyFlag){
+			const getter = desc.get;
+			desc.get = function () {
+				return getter.apply(this);
+			}
+
+			return desc;
+		}
+
+	}
+
+}
+class Equip implements Equipment{
+
+	quality:number = 1;
+
+	weight:number=1;
+
+	strength:number = 0;
+	agility:number = 0;
+	intelligence:number = 0;
+	endurance:number = 0;
+
+	dirtyFlag:boolean = true;
+
+	jewels:Jewel[] =[];
+
+	public constructor(type:number) {
+		this.quality = equipConfig[type].quality;
+		this.strength = equipConfig[type].strength
+		this.agility = equipConfig[type].agility;
+		this.intelligence = equipConfig[type].intelligence;
+		this.weight=equipConfig[type].weight;
+
+	}
+
+	@this.attackCache
+	get attack():number {
+
+		return (this.strength * 0.8 + this.agility * 0.8 + this.intelligence * 0.8) * (this.quality*this.weight);
+
+	}
+
+	@this.fightpowerCache
+	get FightPower():number {
+
+		var result = 0;
+
+		this.jewels.forEach(e => result += e.FightPower)
+
+		result+=(this.strength * 0.8 + this.agility * 0.8 + this.intelligence * 0.8) * (this.quality*this.weight);
 
 		return result;
 
